@@ -153,9 +153,10 @@ fi
 
 if [[ "$PLATFORM" == "win" ]]; then
   case "${MSYSTEM:-}" in
-    MINGW32) TOOLCHAIN_ARCH="x86" ;;
-    MINGW64|UCRT64) TOOLCHAIN_ARCH="x64" ;;
-    CLANGARM64) TOOLCHAIN_ARCH="arm64" ;;
+    MINGW32) TOOLCHAIN_ARCH="x86"; TOOLCHAIN_ROOT="/mingw32" ;;
+    MINGW64) TOOLCHAIN_ARCH="x64"; TOOLCHAIN_ROOT="/mingw64" ;;
+    UCRT64) TOOLCHAIN_ARCH="x64"; TOOLCHAIN_ROOT="/ucrt64" ;;
+    CLANGARM64) TOOLCHAIN_ARCH="arm64"; TOOLCHAIN_ROOT="/clangarm64" ;;
     *) fail "run build.ps1 or start an MINGW32/MINGW64/UCRT64/CLANGARM64 MSYS2 shell" ;;
   esac
   [[ "$ARCH" == "$TOOLCHAIN_ARCH" ]] ||
@@ -199,9 +200,9 @@ if [[ -z "${CC:-}" ]]; then
   if [[ -n "$CROSS_PREFIX" ]]; then
     CC="${CROSS_PREFIX}gcc"
   elif [[ "$PLATFORM" == "win" && "$ARCH" == "arm64" ]]; then
-    CC="${X264_HOST}-clang"
+    CC="$TOOLCHAIN_ROOT/bin/clang"
   elif [[ "$PLATFORM" == "win" ]]; then
-    CC="${X264_HOST}-gcc"
+    CC="$TOOLCHAIN_ROOT/bin/gcc"
   else
     CC="cc"
   fi

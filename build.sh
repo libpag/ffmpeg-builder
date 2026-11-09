@@ -249,12 +249,17 @@ if [[ -n "$CROSS_PREFIX" ]]; then
 fi
 
 echo "==> Configuring x264 for $TARGET"
-(
+if ! (
   cd "$X264_BUILD_DIR"
   CC="$CC" CFLAGS="$TARGET_CFLAGS" LDFLAGS="$TARGET_LDFLAGS" \
     PKGCONFIG="${PKGCONFIG:-pkg-config}" \
     "$X264_SOURCE_DIR/configure" "${X264_CONFIGURE[@]}"
-)
+); then
+  if [[ -f "$X264_BUILD_DIR/config.log" ]]; then
+    cat "$X264_BUILD_DIR/config.log" >&2
+  fi
+  fail "x264 configure failed for $TARGET"
+fi
 echo "==> Building x264"
 make -C "$X264_BUILD_DIR" -j"$JOBS"
 make -C "$X264_BUILD_DIR" install
@@ -304,11 +309,16 @@ if [[ -n "$CROSS_PREFIX" ]]; then
 fi
 
 echo "==> Configuring FFmpeg for $TARGET"
-(
+if ! (
   cd "$FFMPEG_BUILD_DIR"
   CFLAGS="$USER_CFLAGS" LDFLAGS="$USER_LDFLAGS" \
     "$FFMPEG_SOURCE_DIR/configure" "${FFMPEG_CONFIGURE[@]}"
-)
+); then
+  if [[ -f "$FFMPEG_BUILD_DIR/ffbuild/config.log" ]]; then
+    cat "$FFMPEG_BUILD_DIR/ffbuild/config.log" >&2
+  fi
+  fail "FFmpeg configure failed for $TARGET"
+fi
 echo "==> Building FFmpeg"
 make -C "$FFMPEG_BUILD_DIR" -j"$JOBS"
 make -C "$FFMPEG_BUILD_DIR" install

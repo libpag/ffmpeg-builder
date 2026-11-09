@@ -12,7 +12,7 @@ SKIP_SYNC=0
 
 usage() {
   cat <<'USAGE'
-Build a minimal FFmpeg executable with libx264 for pagx MP4 export.
+Build a minimal FFmpeg executable with libx264 for MP4 encoding.
 
 Usage:
   ./build.sh [--platform mac|linux|win] [--arch x64|x86|arm64] [options]
@@ -347,7 +347,7 @@ if [[ "$CROSS_COMPILE" == "0" ]]; then
   done
 
   SMOKE_DIR="$WORK_DIR/smoke"
-  SMOKE_FILE="$SMOKE_DIR/pagx-smoke.mp4"
+  SMOKE_FILE="$SMOKE_DIR/smoke.mp4"
   mkdir -p "$SMOKE_DIR"
   echo "==> Running RGBA to MP4 smoke test"
   dd if=/dev/zero bs=16384 count=3 2>/dev/null |

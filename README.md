@@ -3,10 +3,9 @@
 [English](README.md) | [简体中文](README.zh_CN.md)
 
 `ffmpeg-builder` builds a real, minimal FFmpeg executable with static x264 support for
-`pagx export --format mp4`. It is self-contained and can be used as a standalone
-repository without depending on the parent libpag repository.
+MP4 encoding. It is self-contained and has no dependency on any parent repository.
 
-The build is intentionally limited to the components used by pagx:
+The build is intentionally limited to the components required for this encoding pipeline:
 
 - raw RGBA video from a file or stdin pipe;
 - H.264 encoding through libx264;
@@ -244,16 +243,14 @@ FFmpeg. Keeping the tag optional gives latest-download users a stable URL while 
 reproducible builds to pin an exact snapshot even when the upstream FFmpeg version has
 not changed.
 
-## Use with pagx
+## Using the executable
 
-Pass the executable explicitly:
+Run the generated program directly or integrate it as an external process in any host
+application. To inspect its command-line options:
 
 ```bash
-pagx export input.pagx --format mp4 --ffmpeg /absolute/path/to/ffmpeg output.mp4
+./ffmpeg -h
 ```
-
-Or set `FFMPEG_BIN` to the absolute executable path. This directory does not alter the
-pagx CLI, its PATH lookup, or the npm package layout.
 
 ## Licensing
 

@@ -56,11 +56,11 @@ and under `/releases/download/<tag>/` for a pinned Release. Each executable's
 `build-info.json` records the source commits and configure arguments that connect it to
 these archives.
 
-## Interaction with pagx
+## Process integration
 
-pagx does not link x264 or the FFmpeg libraries. It starts the generated FFmpeg program
-as a separate process and communicates through command-line arguments, stdin, and output
-files. The Apache-2.0 pagx code and the GPL FFmpeg executable retain their respective
-license boundaries.
+The generated FFmpeg program is designed to run as a separate executable. Host applications
+can communicate with it through command-line arguments, stdin, and output files without
+linking x264 or the FFmpeg libraries. The host application and the GPL FFmpeg executable
+retain their respective license boundaries.
 
 This notice is provided for license clarity and does not constitute legal advice.

@@ -2,10 +2,10 @@
 
 [English](README.md) | [简体中文](README.zh_CN.md)
 
-`ffmpeg-builder` 用于构建真实、最小化且静态集成 x264 的 FFmpeg 可执行文件，服务于
-`pagx export --format mp4`。本仓库可以独立使用，不依赖父级 libpag 仓库。
+`ffmpeg-builder` 用于构建真实、最小化且静态集成 x264 的 FFmpeg 可执行文件，适用于
+MP4 编码。本仓库完全独立，不依赖任何父级仓库。
 
-构建内容仅限 pagx 所需的组件：
+构建内容仅限该编码流程所需的组件：
 
 - 从文件或标准输入管道读取 raw RGBA 视频；
 - 通过 libx264 进行 H.264 编码；
@@ -230,16 +230,14 @@ Release 标签用于标识 `DEPS`、构建脚本、打包逻辑以及实际使�
 并不表示本仓库修改了 FFmpeg。标签可选的设计让下载最新产物的用户拥有固定 URL，
 同时让需要可复现构建的用户能够固定精确快照，即使上游 FFmpeg 版本没有变化也不受影响。
 
-## 与 pagx 配合使用
+## 使用可执行文件
 
-显式传入可执行文件路径：
+可以直接运行生成的程序，也可以将其作为独立进程集成到任意宿主应用中。查看命令行
+选项：
 
 ```bash
-pagx export input.pagx --format mp4 --ffmpeg /absolute/path/to/ffmpeg output.mp4
+./ffmpeg -h
 ```
-
-也可以将 `FFMPEG_BIN` 设置为可执行文件的绝对路径。本仓库不会修改 pagx CLI、其
-PATH 查找逻辑或 npm 包目录结构。
 
 ## 开源协议与第三方许可
 

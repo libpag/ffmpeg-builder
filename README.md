@@ -163,6 +163,68 @@ The generated packages are named `ffmpeg-<platform>-<arch>.tar.gz` on Unix and
 therefore marked `configuration-only`; test that executable on a compatible Windows
 system before distribution. The other matrix entries run their native smoke tests.
 
+## Download built executables
+
+### Local builds
+
+After running `build.sh` or `build.ps1`, use the executable directly from:
+
+```text
+out/<platform>-<arch>/bin/ffmpeg[.exe]
+```
+
+For example, a native Apple Silicon build produces `out/mac-arm64/bin/ffmpeg`.
+
+### GitHub Actions artifacts
+
+Open the repository's **Actions** page, select a successful **Build and release** run,
+and download `ffmpeg-<platform>-<arch>` from its **Artifacts** section. These artifacts
+are temporary, retained for seven days, and may require a GitHub login. They are intended
+for CI verification rather than permanent download links.
+
+### Release assets
+
+Asset names do not contain a Release tag. Use the following stable URLs to download the
+latest published Release without knowing its tag. These links become available after the
+first Release is published:
+
+| Target | Latest download URL |
+| --- | --- |
+| macOS ARM64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-mac-arm64.tar.gz |
+| macOS x64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-mac-x64.tar.gz |
+| Linux ARM64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-linux-arm64.tar.gz |
+| Linux x64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-linux-x64.tar.gz |
+| Windows x86 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-win-x86.zip |
+| Windows x64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-win-x64.zip |
+| Windows ARM64 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-win-arm64.zip |
+
+For example:
+
+```bash
+curl -fL -o ffmpeg-mac-arm64.tar.gz \
+  https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-mac-arm64.tar.gz
+tar -xzf ffmpeg-mac-arm64.tar.gz
+./bin/ffmpeg -version
+```
+
+The checksum file is available at:
+
+```text
+https://github.com/libpag/ffmpeg-builder/releases/latest/download/SHA256SUMS
+```
+
+To pin an exact build, replace `latest` with its Release tag:
+
+```text
+https://github.com/libpag/ffmpeg-builder/releases/download/<tag>/ffmpeg-<platform>-<arch>.<ext>
+```
+
+Release tags identify revisions of `DEPS`, build scripts, packaging logic, and the exact
+FFmpeg/x264 commits used for the build. They do not imply that this repository patches
+FFmpeg. Keeping the tag optional gives latest-download users a stable URL while allowing
+reproducible builds to pin an exact snapshot even when the upstream FFmpeg version has
+not changed.
+
 ## Use with pagx
 
 Pass the executable explicitly:

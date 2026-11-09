@@ -199,9 +199,9 @@ if [[ -z "${CC:-}" ]]; then
   if [[ -n "$CROSS_PREFIX" ]]; then
     CC="${CROSS_PREFIX}gcc"
   elif [[ "$PLATFORM" == "win" && "$ARCH" == "arm64" ]]; then
-    CC="clang"
+    CC="${X264_HOST}-clang"
   elif [[ "$PLATFORM" == "win" ]]; then
-    CC="gcc"
+    CC="${X264_HOST}-gcc"
   else
     CC="cc"
   fi

@@ -1,0 +1,151 @@
+# Copyright (C) 2026 Tencent. All rights reserved.
+
+name: Build and release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: mac-arm64
+            runner: macos-15
+            platform: mac
+            arch: arm64
+          - target: mac-x64
+            runner: macos-15-intel
+            platform: mac
+            arch: x64
+          - target: linux-arm64
+            runner: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+          - target: linux-x64
+            runner: ubuntu-24.04
+            platform: linux
+            arch: x64
+          - target: win-x86
+            runner: windows-latest
+            platform: win
+            arch: x86
+            msystem: MINGW32
+            toolchain: nasm mingw-w64-i686-toolchain
+          - target: win-x64
+            runner: windows-latest
+            platform: win
+            arch: x64
+            msystem: MINGW64
+            toolchain: nasm mingw-w64-x86_64-toolchain
+          - target: win-arm64
+            runner: windows-11-arm
+            platform: win
+            arch: arm64
+            msystem: CLANGARM64
+            toolchain: mingw-w64-clang-aarch64-toolchain
+
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: >-
+            base-devel git make pkgconf nodejs npm
+            ${{ matrix.toolchain }}
+
+      - name: Install macOS build tools
+        if: runner.os == 'macOS'
+        run: |
+          brew install nasm pkg-config
+          npm install --global depsync@1.4.6
+
+      - name: Install Linux build tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes build-essential nasm pkg-config
+          npm install --global depsync@1.4.6
+
+      - name: Install Windows dependency sync tool
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: npm install --global depsync@1.4.6
+
+      - name: Build FFmpeg on Unix
+        if: runner.os != 'Windows'
+        run: ./build.sh --platform "${{ matrix.platform }}" --arch "${{ matrix.arch }}"
+
+      - name: Build FFmpeg on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build.ps1 -Arch ${{ matrix.arch }}
+
+      - name: Package Unix executable
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p dist
+          tar -C "out/${{ matrix.target }}" -czf "dist/ffmpeg-${{ matrix.target }}.tar.gz" .
+
+      - name: Package Windows executable
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          Compress-Archive -Path "out/${{ matrix.target }}/*" `
+            -DestinationPath "dist/ffmpeg-${{ matrix.target }}.zip" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-${{ matrix.target }}
+          path: dist/ffmpeg-${{ matrix.target }}.*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ffmpeg-*
+          path: dist
+          merge-multiple: true
+
+      - name: Generate checksums
+        working-directory: dist
+        run: |
+          packages=(ffmpeg-*.tar.gz ffmpeg-*.zip)
+          sha256sum "${packages[@]}" > SHA256SUMS
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "FFmpeg $GITHUB_REF_NAME" \
+            --generate-notes

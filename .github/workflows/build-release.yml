@@ -109,14 +109,21 @@ jobs:
       - name: Check out sources
         uses: actions/checkout@v4
 
+      - name: Set up Node.js on Windows
+        if: runner.os == 'Windows'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Set up MSYS2
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.msystem }}
           update: true
+          path-type: inherit
           install: >-
-            base-devel git make pkgconf nodejs npm
+            base-devel git make pkgconf
             ${{ matrix.toolchain }}
 
       - name: Install macOS build tools
@@ -134,7 +141,7 @@ jobs:
 
       - name: Install Windows dependency sync tool
         if: runner.os == 'Windows'
-        shell: msys2 {0}
+        shell: pwsh
         run: npm install --global depsync@1.4.6
 
       - name: Build FFmpeg on Unix

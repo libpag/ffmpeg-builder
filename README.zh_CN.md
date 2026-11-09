@@ -67,29 +67,32 @@ cross-prefix。
 
 ### Windows
 
-安装 MSYS2，然后在 MSYS2 Shell 中安装 x64 工具链：
+单独安装 Node.js 和 npm，再按照“环境要求”中的命令安装 depsync。不要通过 MSYS2
+pacman 安装 `nodejs` 或 `npm` 包。安装 MSYS2，然后在 MSYS2 Shell 中安装 x64 工具链：
 
 ```bash
-pacman -S --needed base-devel git make nasm pkgconf nodejs npm \
+pacman -S --needed base-devel git make nasm pkgconf \
   mingw-w64-x86_64-toolchain
 ```
 
 构建 Windows x86 时，安装 32 位 MinGW 工具链：
 
 ```bash
-pacman -S --needed base-devel git make nasm pkgconf nodejs npm \
+pacman -S --needed base-devel git make nasm pkgconf \
   mingw-w64-i686-toolchain
 ```
 
 构建 Windows ARM64 时，安装 LLVM-MinGW 工具链：
 
 ```bash
-pacman -S --needed base-devel git make pkgconf nodejs npm \
+pacman -S --needed base-devel git make pkgconf \
   mingw-w64-clang-aarch64-toolchain
 ```
 
 `build.ps1` 对 x86 选择 `MINGW32`，对 x64 选择 `MINGW64`，对 ARM64 选择
-`CLANGARM64`。如果 MSYS2 未安装在 `C:\msys64`，请设置 `MSYS2_ROOT`。
+`CLANGARM64`。请确保 MSYS2 PATH 中可以找到 `node` 和 `depsync`；CI 工作流通过
+`actions/setup-node` 和 `path-type: inherit` 实现这一点。如果 MSYS2 未安装在
+`C:\msys64`，请设置 `MSYS2_ROOT`。
 
 ## 构建
 

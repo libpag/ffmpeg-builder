@@ -71,29 +71,33 @@ automatically when the host and target architectures differ.
 
 ### Windows
 
-Install MSYS2, then install the x64 toolchain in an MSYS2 shell:
+Install Node.js and npm separately, then install depsync as described in Prerequisites.
+Do not install the `nodejs` or `npm` packages through MSYS2 pacman. Install MSYS2 and the
+x64 toolchain in an MSYS2 shell:
 
 ```bash
-pacman -S --needed base-devel git make nasm pkgconf nodejs npm \
+pacman -S --needed base-devel git make nasm pkgconf \
   mingw-w64-x86_64-toolchain
 ```
 
 For Windows x86, install the 32-bit MinGW toolchain:
 
 ```bash
-pacman -S --needed base-devel git make nasm pkgconf nodejs npm \
+pacman -S --needed base-devel git make nasm pkgconf \
   mingw-w64-i686-toolchain
 ```
 
 For Windows ARM64, install the LLVM-MinGW toolchain instead:
 
 ```bash
-pacman -S --needed base-devel git make pkgconf nodejs npm \
+pacman -S --needed base-devel git make pkgconf \
   mingw-w64-clang-aarch64-toolchain
 ```
 
 `build.ps1` selects `MINGW32` for x86, `MINGW64` for x64, and `CLANGARM64` for ARM64.
-Set `MSYS2_ROOT` if MSYS2 is not installed at `C:\msys64`.
+Ensure that `node` and `depsync` are available in the MSYS2 PATH. The CI workflow uses
+`actions/setup-node` and `path-type: inherit` for this purpose. Set `MSYS2_ROOT` if MSYS2
+is not installed at `C:\msys64`.
 
 ## Build
 

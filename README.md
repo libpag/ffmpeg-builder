@@ -1,5 +1,7 @@
 # ffmpeg-builder
 
+[English](README.md) | [简体中文](README.zh_CN.md)
+
 `ffmpeg-builder` builds a real, minimal FFmpeg executable with static x264 support for
 `pagx export --format mp4`. It is self-contained and can be used as a standalone
 repository without depending on the parent libpag repository.
@@ -238,7 +240,13 @@ pagx CLI, its PATH lookup, or the npm package layout.
 
 ## Licensing
 
+The build scripts, documentation, and automation in this repository are licensed under
+the **Apache License, Version 2.0**. See [LICENSE.txt](LICENSE.txt). This license applies
+only to ffmpeg-builder itself and does not relicense FFmpeg, x264, or other third-party
+projects.
+
 x264 is licensed under the GNU GPL, and this build enables FFmpeg's GPL components.
-No non-free component is enabled. The generated program is therefore subject to the
-GPL; review the copied FFmpeg and x264 license files and satisfy source-code and
-license obligations before redistributing any executable. This note is not legal advice.
+No non-free component is enabled. The generated FFmpeg executable is therefore subject
+to the **GPL**. Each package includes the corresponding FFmpeg and x264 licenses under
+`share/licenses/`; review them and satisfy source-code and license obligations before
+redistributing any executable. This note is not legal advice.

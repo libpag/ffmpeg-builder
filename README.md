@@ -126,6 +126,9 @@ The output layout is:
 out/<platform>-<arch>/
 ├── bin/ffmpeg[.exe]
 ├── build-info.json
+├── LICENSE.txt
+├── THIRD_PARTY_NOTICES.md
+├── THIRD_PARTY_NOTICES.zh_CN.md
 └── share/licenses/
 ```
 
@@ -215,6 +218,20 @@ The checksum file is available at:
 https://github.com/libpag/ffmpeg-builder/releases/latest/download/SHA256SUMS
 ```
 
+Each Release also provides the exact corresponding sources and license notices:
+
+| Asset | Latest download URL |
+| --- | --- |
+| FFmpeg source | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-source.tar.gz |
+| x264 source | https://github.com/libpag/ffmpeg-builder/releases/latest/download/x264-source.tar.gz |
+| ffmpeg-builder source | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-builder-source.tar.gz |
+| Third-party notices | https://github.com/libpag/ffmpeg-builder/releases/latest/download/THIRD_PARTY_NOTICES.md |
+| 中文第三方声明 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/THIRD_PARTY_NOTICES.zh_CN.md |
+
+The source workflow verifies every dependency commit against `DEPS` before creating the
+archives with `git archive HEAD`. Release creation requires both the binary builds and
+this source-packaging job to succeed.
+
 To pin an exact build, replace `latest` with its Release tag:
 
 ```text
@@ -243,7 +260,9 @@ pagx CLI, its PATH lookup, or the npm package layout.
 The build scripts, documentation, and automation in this repository are licensed under
 the **Apache License, Version 2.0**. See [LICENSE.txt](LICENSE.txt). This license applies
 only to ffmpeg-builder itself and does not relicense FFmpeg, x264, or other third-party
-projects.
+projects. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) or the
+[中文第三方声明](THIRD_PARTY_NOTICES.zh_CN.md) for exact revisions, corresponding source
+archives, and the process boundary.
 
 x264 is licensed under the GNU GPL, and this build enables FFmpeg's GPL components.
 No non-free component is enabled. The generated FFmpeg executable is therefore subject

@@ -120,6 +120,9 @@ Windows 也可以在匹配的 MSYS2 环境中直接运行 `build.sh --platform w
 out/<platform>-<arch>/
 ├── bin/ffmpeg[.exe]
 ├── build-info.json
+├── LICENSE.txt
+├── THIRD_PARTY_NOTICES.md
+├── THIRD_PARTY_NOTICES.zh_CN.md
 └── share/licenses/
 ```
 
@@ -204,6 +207,19 @@ tar -xzf ffmpeg-mac-arm64.tar.gz
 https://github.com/libpag/ffmpeg-builder/releases/latest/download/SHA256SUMS
 ```
 
+每个 Release 还提供精确的对应源码和许可声明：
+
+| 资产 | 最新版本下载链接 |
+| --- | --- |
+| FFmpeg 源码 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-source.tar.gz |
+| x264 源码 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/x264-source.tar.gz |
+| ffmpeg-builder 源码 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/ffmpeg-builder-source.tar.gz |
+| 英文第三方声明 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/THIRD_PARTY_NOTICES.md |
+| 中文第三方声明 | https://github.com/libpag/ffmpeg-builder/releases/latest/download/THIRD_PARTY_NOTICES.zh_CN.md |
+
+源码工作流会先根据 `DEPS` 校验每个依赖的实际提交，再通过 `git archive HEAD`
+创建源码包。只有二进制构建和源码打包任务全部成功后，流水线才会创建 Release。
+
 如需固定某个精确构建，将链接中的 `latest` 替换为 Release 标签：
 
 ```text
@@ -229,7 +245,9 @@ PATH 查找逻辑或 npm 包目录结构。
 
 本仓库中的构建脚本、文档和自动化配置采用 **Apache License 2.0**，完整协议见
 [LICENSE.txt](LICENSE.txt)。该协议仅适用于 ffmpeg-builder 自身，不会改变 FFmpeg、
-x264 或其他第三方项目的许可证。
+x264 或其他第三方项目的许可证。精确提交、对应源码包和进程边界详见
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 或
+[中文第三方声明](THIRD_PARTY_NOTICES.zh_CN.md)。
 
 x264 采用 GNU GPL，当前构建同时启用了 FFmpeg 的 GPL 组件，未启用 non-free 组件。
 因此生成的 FFmpeg 可执行文件需要按照 **GPL** 分发。每个产物的

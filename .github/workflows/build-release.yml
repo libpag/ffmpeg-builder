@@ -15,6 +15,54 @@ permissions:
   contents: read
 
 jobs:
+  sources:
+    name: Package corresponding sources
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out builder sources
+        uses: actions/checkout@v4
+
+      - name: Install dependency sync tool
+        run: npm install --global depsync@1.4.6
+
+      - name: Check out pinned upstream sources
+        run: depsync linux --project "$GITHUB_WORKSPACE" --non-recursive
+
+      - name: Verify dependency commits
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const { execFileSync } = require("child_process");
+          const deps = JSON.parse(fs.readFileSync("DEPS", "utf8"));
+          for (const repo of deps.repos.common) {
+            const actual = execFileSync("git", ["-C", repo.dir, "rev-parse", "HEAD"], {
+              encoding: "utf8",
+            }).trim();
+            if (actual !== repo.commit) {
+              throw new Error(`${repo.dir}: expected ${repo.commit}, found ${actual}`);
+            }
+          }
+          NODE
+
+      - name: Archive corresponding sources
+        run: |
+          mkdir -p dist
+          git -C third_party/FFmpeg archive --format=tar.gz --prefix=FFmpeg/ \
+            --output="$GITHUB_WORKSPACE/dist/ffmpeg-source.tar.gz" HEAD
+          git -C third_party/x264 archive --format=tar.gz --prefix=x264/ \
+            --output="$GITHUB_WORKSPACE/dist/x264-source.tar.gz" HEAD
+          git archive --format=tar.gz --prefix=ffmpeg-builder/ \
+            --output=dist/ffmpeg-builder-source.tar.gz HEAD
+          cp THIRD_PARTY_NOTICES.md THIRD_PARTY_NOTICES.zh_CN.md dist/
+
+      - name: Upload source artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-sources
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
   build:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}
@@ -123,7 +171,9 @@ jobs:
   release:
     name: Publish GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs:
+      - build
+      - sources
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -138,7 +188,7 @@ jobs:
       - name: Generate checksums
         working-directory: dist
         run: |
-          packages=(ffmpeg-*.tar.gz ffmpeg-*.zip)
+          packages=(ffmpeg-*.tar.gz ffmpeg-*.zip THIRD_PARTY_NOTICES.md THIRD_PARTY_NOTICES.zh_CN.md)
           sha256sum "${packages[@]}" > SHA256SUMS
 
       - name: Publish release assets

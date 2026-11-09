@@ -29,11 +29,20 @@ if (-not (Test-Path $Cygpath -PathType Leaf)) {
   throw "MSYS2 cygpath was not found at $Cygpath."
 }
 
+$ToolchainDirectory = switch ($Arch) {
+  "x86" { "mingw32" }
+  "arm64" { "clangarm64" }
+  default { "mingw64" }
+}
 $env:MSYSTEM = switch ($Arch) {
   "x86" { "MINGW32" }
   "arm64" { "CLANGARM64" }
   default { "MINGW64" }
 }
+$ToolchainBin = Join-Path $MsysRoot "$ToolchainDirectory\bin"
+$MsysBin = Join-Path $MsysRoot "usr\bin"
+$env:PATH = "$ToolchainBin;$MsysBin;$env:PATH"
+$env:MSYS2_PATH_TYPE = "inherit"
 $env:CHERE_INVOKING = "1"
 $ScriptPath = (& $Cygpath -u (Join-Path $PSScriptRoot "build.sh")).Trim()
 if ($LASTEXITCODE -ne 0 -or -not $ScriptPath) {

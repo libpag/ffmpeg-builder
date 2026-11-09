@@ -150,8 +150,17 @@ jobs:
 
       - name: Build FFmpeg on Windows
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./build.ps1 -Arch ${{ matrix.arch }}
+        shell: msys2 {0}
+        run: |
+          export PATH="/${MSYSTEM,,}/bin:/usr/bin:$PATH"
+          if [[ "$MSYSTEM" == "CLANGARM64" ]]; then
+            export CC=clang
+          else
+            export CC=gcc
+          fi
+          echo "C compiler: $(command -v "$CC")"
+          "$CC" -dumpmachine
+          ./build.sh --platform win --arch "${{ matrix.arch }}"
 
       - name: Package Unix executable
         if: runner.os != 'Windows'

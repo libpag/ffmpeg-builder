@@ -209,12 +209,24 @@ if [[ -z "${CC:-}" ]]; then
 fi
 
 REQUIRED_TOOLS=(git make pkg-config node "$CC")
-if [[ -n "$CROSS_PREFIX" ]]; then
+if [[ "$PLATFORM" == "win" ]]; then
+  BINUTILS_PREFIX=""
+  if [[ "$ARCH" == "arm64" ]]; then
+    BINUTILS_PREFIX="llvm-"
+  fi
+  AR="${AR:-$TOOLCHAIN_ROOT/bin/${BINUTILS_PREFIX}ar}"
+  RANLIB="${RANLIB:-$TOOLCHAIN_ROOT/bin/${BINUTILS_PREFIX}ranlib}"
+  STRIP="${STRIP:-$TOOLCHAIN_ROOT/bin/${BINUTILS_PREFIX}strip}"
+  NM="${NM:-$TOOLCHAIN_ROOT/bin/${BINUTILS_PREFIX}nm}"
+elif [[ -n "$CROSS_PREFIX" ]]; then
   AR="${AR:-${CROSS_PREFIX}ar}"
   RANLIB="${RANLIB:-${CROSS_PREFIX}ranlib}"
   STRIP="${STRIP:-${CROSS_PREFIX}strip}"
-  export AR RANLIB STRIP
-  REQUIRED_TOOLS+=("$AR" "$RANLIB" "$STRIP")
+  NM="${NM:-${CROSS_PREFIX}nm}"
+fi
+if [[ "$PLATFORM" == "win" || -n "$CROSS_PREFIX" ]]; then
+  export AR RANLIB STRIP NM
+  REQUIRED_TOOLS+=("$AR" "$RANLIB" "$STRIP" "$NM")
 fi
 if [[ "$SKIP_SYNC" == "0" ]]; then
   REQUIRED_TOOLS+=(depsync)
@@ -264,6 +276,10 @@ fi
 echo "==> Building x264"
 make -C "$X264_BUILD_DIR" -j"$JOBS"
 make -C "$X264_BUILD_DIR" install
+if [[ "$PLATFORM" == "win" ]]; then
+  "$NM" "$PREFIX_DIR/lib/libx264.a" | grep "x264_encoder_encode" ||
+    fail "libx264.a does not export x264_encoder_encode for $TARGET"
+fi
 
 export PKG_CONFIG_LIBDIR="$PREFIX_DIR/lib/pkgconfig"
 unset PKG_CONFIG_PATH
